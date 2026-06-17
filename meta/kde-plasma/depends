@@ -1,0 +1,6 @@
+plasma-desktop
+wayland
+pipewire
+dbus
+elogind
+networkmanager
