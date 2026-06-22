@@ -96,14 +96,59 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: /tmp/artifacts
-      - name: Assemble repo
+      - name: Generate repo.db
         run: |
           mkdir -p /tmp/repo
-          find /tmp/artifacts -name '*.swell' -exec cp {} /tmp/repo/ \;
-          if [ -f /tmp/artifacts/repo.db ]; then
-            cp /tmp/artifacts/repo.db /tmp/repo/
-          fi
-          echo '{ "version": 1, "packages": [] }' > /tmp/repo/repo.db
+          python3 << 'PYEOF'
+import json, hashlib, os, shutil, subprocess
+
+packages = {}
+artifacts_dir = '/tmp/artifacts'
+
+for root, dirs, files in os.walk(artifacts_dir):
+    for fname in files:
+        if not fname.endswith('.swell'):
+            continue
+        path = os.path.join(root, fname)
+        shutil.copy2(path, '/tmp/repo/')
+
+        result = subprocess.run(
+            ['tar', '--zstd', '-xf', path, '--to-stdout', 'metadata.toml'],
+            capture_output=True, text=True
+        )
+        meta = {}
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if '=' in line:
+                k, v = line.split('=', 1)
+                meta[k.strip()] = v.strip().strip('"')
+
+        name = meta.get('name', fname)
+        version = meta.get('version', '0')
+        release = int(meta.get('release', '1'))
+        depends_str = meta.get('depends', '[]')
+        depends = json.loads(depends_str) if depends_str else []
+        size = os.path.getsize(path)
+        sha256 = hashlib.sha256(open(path, 'rb').read()).hexdigest()
+        url = 'https://packages.swellos.org/' + fname
+
+        packages[name] = {
+            'version': version,
+            'release': release,
+            'depends': depends,
+            'size': size,
+            'sha256': sha256,
+            'url': url,
+        }
+
+with open('/tmp/repo/repo.db', 'w') as f:
+    json.dump(packages, f, indent=2)
+    f.write('\n')
+
+print(f'Generated repo.db with {len(packages)} packages')
+for n, p in sorted(packages.items()):
+    print(f'  {n} {p["version"]}-{p["release"]} ({p["size"]} bytes)')
+PYEOF
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
