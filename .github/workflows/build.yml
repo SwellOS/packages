@@ -60,6 +60,7 @@ jobs:
         run: |
           sudo mkdir -p /usr/src/swell/packages /usr/src/swell/repo /usr/src/swell/build /usr/src/swell/sources /usr/src/swell/dest
           sudo cp -r ${{ github.workspace }}/* /usr/src/swell/packages/
+          sudo chown -R $(whoami) /usr/src/swell
       - name: Install deps
         run: |
           sudo apt-get update -qq
