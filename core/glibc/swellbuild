@@ -1,0 +1,44 @@
+pkg_fetch() {
+    fetch_url "$(head -1 sources)"
+    fetch_url "$(tail -1 sources)"
+}
+
+pkg_unpack() {
+    unpack glibc-*.tar.xz
+}
+
+pkg_build() {
+    patch -Np1 -i "$SRCDIR/glibc-2.40-upstream_fixes-1.patch"
+
+    mkdir -v build
+    cd build
+
+    echo "rootsbindir=/usr/sbin" > configparms
+
+    ../configure \
+        --prefix=/usr \
+        --disable-werror \
+        --enable-kernel=4.19 \
+        --enable-stack-protector=strong \
+        --disable-nscd \
+        glibc_cv_stack_end_mark=mcount
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    cd build
+    make DESTDIR="$DESTDIR" install
+
+    # Fix hardcoded ldconfig path
+    sed '/RTLDLIST=/s@/usr@@g' -i "$DESTDIR/usr/bin/ldd"
+
+    # Install locale
+    mkdir -p "$DESTDIR/usr/lib/locale"
+    localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true
+    localedef -i en_US -f UTF-8 en_US.UTF-8 2> /dev/null || true
+
+    # Timezone
+    mkdir -p "$DESTDIR/etc"
+    cp -v /usr/share/zoneinfo/UTC "$DESTDIR/etc/localtime"
+}

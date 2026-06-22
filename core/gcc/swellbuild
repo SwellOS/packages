@@ -1,0 +1,39 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack gcc-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -v build
+    cd build
+
+    ../configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --libexecdir=/usr/libexec \
+        --enable-default-pie \
+        --enable-default-ssp \
+        --disable-fixincludes \
+        --enable-languages=c,c++ \
+        --enable-lto \
+        --enable-threads=posix \
+        --enable-checking=release \
+        --with-system-zlib \
+        --with-gcc-major-version-only
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    cd build
+    make DESTDIR="$DESTDIR" install
+
+    # Remove deprecated fixincludes
+    rm -rf "$DESTDIR/usr/lib/gcc/$(gcc -dumpmachine)/14.2.0/include-fixed"
+
+    # Symlink cc
+    ln -sfv gcc "$DESTDIR/usr/bin/cc"
+}

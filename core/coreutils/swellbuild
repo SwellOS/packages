@@ -1,0 +1,24 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack coreutils-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --enable-no-install-program=kill,uptime
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+
+    # Move programs to /bin (required by LFS)
+    mv -v "$DESTDIR/usr/bin/chroot" "$DESTDIR/usr/sbin"
+    mkdir -p "$DESTDIR/bin"
+    for prog in cat chgrp chmod chown cp date dd df dir echo false ln ls mkdir mknod mv pwd readlink rm rmdir sleep stty sync touch true uname vdir; do
+        mv -v "$DESTDIR/usr/bin/$prog" "$DESTDIR/bin"
+    done
+}

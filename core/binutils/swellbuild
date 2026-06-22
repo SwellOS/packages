@@ -1,0 +1,32 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack binutils-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -v build
+    cd build
+
+    ../configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --enable-gold \
+        --enable-ld=default \
+        --enable-plugins \
+        --enable-shared \
+        --disable-werror \
+        --enable-default-hash-style=gnu
+
+    make -j$(nproc) tooldir=/usr
+}
+
+pkg_install() {
+    cd build
+    make DESTDIR="$DESTDIR" tooldir=/usr install
+
+    # Remove static libraries
+    rm -fv "$DESTDIR/usr/lib/lib{bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe}.a"
+}

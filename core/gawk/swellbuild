@@ -1,0 +1,22 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack gawk-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+
+    # Remove libtool archive
+    rm -f "$DESTDIR/usr/lib/libgawk.la"
+
+    mkdir -p "$DESTDIR/usr/bin"
+    ln -sfv gawk "$DESTDIR/usr/bin/awk"
+}

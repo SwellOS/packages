@@ -1,0 +1,31 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack runit-*.tar.gz
+}
+
+pkg_build() {
+    cd admin/runit-*
+    ./package/compile
+}
+
+pkg_install() {
+    cd admin/runit-*
+    mkdir -p "$DESTDIR/sbin" "$DESTDIR/etc/sv" "$DESTDIR/var/service"
+
+    install -m755 src/runit "$DESTDIR/sbin/"
+    install -m755 src/chpst "$DESTDIR/sbin/"
+    install -m755 src/sv "$DESTDIR/sbin/"
+    install -m755 src/svlogd "$DESTDIR/sbin/"
+    install -m755 src/utmpset "$DESTDIR/sbin/"
+
+    # Create base getty service
+    mkdir -p "$DESTDIR/etc/sv/getty-tty1"
+    cat > "$DESTDIR/etc/sv/getty-tty1/run" << 'RUNE'
+#!/bin/sh
+exec /sbin/agetty -o '-p -- \\u' --noclear tty1 linux
+RUNE
+    chmod +x "$DESTDIR/etc/sv/getty-tty1/run"
+}
