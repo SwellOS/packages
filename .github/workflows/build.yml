@@ -77,11 +77,14 @@ jobs:
           SWELL_BUILD: /usr/src/swell/build
           SWELL_SOURCES: /usr/src/swell/sources
           SWELL_DEST: /usr/src/swell/dest
+      - name: List output files
+        run: |
+          find /usr/src/swell/repo -type f -ls 2>/dev/null || echo "No files found"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.package }}
-          path: /usr/src/swell/repo/
+          path: /usr/src/swell/repo/packages/
 
   deploy:
     needs: build
