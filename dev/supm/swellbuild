@@ -3,7 +3,7 @@ pkg_fetch() {
 }
 
 pkg_unpack() {
-    unpack supm-*.tar.gz
+    unpack main.tar.gz
 }
 
 pkg_build() {
