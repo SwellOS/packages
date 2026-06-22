@@ -17,10 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Debug event info
-        run: |
-          echo "Event name: ${{ github.event_name }}"
-          echo "Ref: ${{ github.ref }}"
       - name: Validate package structure
         run: |
           errors=0
@@ -42,6 +38,7 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         package:
           - core/sed
