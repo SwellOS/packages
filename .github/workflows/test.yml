@@ -8,5 +8,15 @@ jobs:
   job2:
     needs: job1
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: [a, b, c]
     steps:
-      - run: echo "job2"
+      - run: echo "job2 ${{ matrix.pkg }}"
+  job3:
+    needs: job2
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job3"
