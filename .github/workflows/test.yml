@@ -1,7 +1,12 @@
 name: Test
 on: push
 jobs:
-  test:
+  job1:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "hello"
+      - run: echo "job1"
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "job2"
