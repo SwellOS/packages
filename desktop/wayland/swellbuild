@@ -1,0 +1,25 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack wayland-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        -Ddocumentation=false \
+        -Ddtd_validation=false \
+        -Dtests=false
+
+    ninja
+}
+
+pkg_install() {
+    cd build
+    DESTDIR="$DESTDIR" ninja install
+}

@@ -1,0 +1,42 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack source-v*.tar.gz
+    mv hyprland-* hyprland
+}
+
+pkg_build() {
+    cd hyprland
+    make all
+}
+
+pkg_install() {
+    cd hyprland
+    make DESTDIR="$DESTDIR" install
+
+    # Config directory
+    mkdir -p "$DESTDIR/etc/hypr"
+    cat > "$DESTDIR/etc/hypr/hyprland.conf" << 'CONF'
+# SwellOS default Hyprland config
+exec-once = waybar & dunst
+
+input {
+    kb_layout = us
+    follow_mouse = 1
+}
+
+general {
+    gaps_in = 5
+    gaps_out = 10
+    border_size = 2
+    layout = dwindle
+}
+
+decoration {
+    rounding = 8
+    blur = yes
+}
+CONF
+}

@@ -1,0 +1,45 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack 4.23.tar.gz
+    mv i3-* i3
+}
+
+pkg_build() {
+    cd i3
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release
+
+    ninja
+}
+
+pkg_install() {
+    cd i3/build
+    DESTDIR="$DESTDIR" ninja install
+
+    # Default config
+    mkdir -p "$DESTDIR/etc/i3"
+    cat > "$DESTDIR/etc/i3/config" << 'CONF'
+# SwellOS default i3 config
+set $mod Mod4
+font pango:monospace 10
+
+bindsym $mod+Return exec alacritty
+bindsym $mod+d exec rofi -show run
+bindsym $mod+Shift+q kill
+bindsym $mod+Shift+e exec i3-msg exit
+
+bindsym $mod+1 workspace 1
+bindsym $mod+Shift+1 move container to workspace 1
+
+bar {
+    status_command i3status
+    position top
+}
+CONF
+}

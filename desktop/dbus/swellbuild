@@ -1,0 +1,42 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack dbus-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --runstatedir=/run \
+        --enable-user-session \
+        --disable-doxygen-docs \
+        --disable-xml-docs \
+        --disable-static \
+        --without-systemd \
+        --with-system-pid-file=/run/dbus/pid \
+        --with-system-socket=/run/dbus/system_bus_socket
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+
+    # Create dbus user
+    mkdir -p "$DESTDIR/etc"
+    grep -q '^dbus:' "$DESTDIR/etc/passwd" 2>/dev/null || \
+        echo "dbus:x:81:81:System Message Bus:/:/sbin/nologin" >> "$DESTDIR/etc/passwd"
+    grep -q '^dbus:' "$DESTDIR/etc/group" 2>/dev/null || \
+        echo "dbus:x:81:" >> "$DESTDIR/etc/group"
+
+    # Create runit service
+    mkdir -p "$DESTDIR/etc/sv/dbus"
+    cat > "$DESTDIR/etc/sv/dbus/run" << 'RUN'
+#!/bin/sh
+exec /usr/bin/dbus-daemon --system --nofork --nosyslog
+RUN
+    chmod +x "$DESTDIR/etc/sv/dbus/run"
+}

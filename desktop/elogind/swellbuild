@@ -1,0 +1,41 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack v*.tar.gz
+    mv elogind-* elogind
+}
+
+pkg_build() {
+    cd elogind
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        -Dman=disabled \
+        -Ddocdir= \
+        -Ddefault-hierarchy=hybrid \
+        -Dhalt-path=/sbin/halt \
+        -Dreboot-path=/sbin/reboot \
+        -Drootlibexecdir=/usr/lib/elogind
+
+    ninja
+}
+
+pkg_install() {
+    cd elogind/build
+    DESTDIR="$DESTDIR" ninja install
+
+    # Symlink pam module
+    ln -sfv pam_elogind.so "$DESTDIR/usr/lib/security/pam_logind.so"
+
+    # Create runit service
+    mkdir -p "$DESTDIR/etc/sv/elogind"
+    cat > "$DESTDIR/etc/sv/elogind/run" << 'RUN'
+#!/bin/sh
+exec /usr/lib/elogind/elogind
+RUN
+    chmod +x "$DESTDIR/etc/sv/elogind/run"
+}

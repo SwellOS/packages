@@ -1,0 +1,30 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack mesa-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        -Dplatforms=x11,wayland \
+        -Dvulkan-drivers=intel,amd \
+        -Dgallium-drivers=iris,r600,radeonsi,nouveau,zink,virgl \
+        -Dvideo-codecs=all \
+        -Dglx=dri \
+        -Dgles2=enabled \
+        -Dllvm=enabled \
+        -Dshared-llvm=enabled
+
+    ninja
+}
+
+pkg_install() {
+    cd build
+    DESTDIR="$DESTDIR" ninja install
+}

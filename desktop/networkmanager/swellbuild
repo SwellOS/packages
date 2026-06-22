@@ -1,0 +1,39 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack NetworkManager-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        -Dsystemd_journal=false \
+        -Dsystemdsystemunitdir= \
+        -Dmodem_manager=false \
+        -Dppp=false \
+        -Dnm_cloud_setup=false \
+        -Dbluez5_dun=false \
+        -Ddocs=false \
+        -Dtests=no \
+        -Dsession_tracking=elogind
+
+    ninja
+}
+
+pkg_install() {
+    cd build
+    DESTDIR="$DESTDIR" ninja install
+
+    # runit service
+    mkdir -p "$DESTDIR/etc/sv/NetworkManager"
+    cat > "$DESTDIR/etc/sv/NetworkManager/run" << 'RUN'
+#!/bin/sh
+exec /usr/sbin/NetworkManager --no-daemon
+RUN
+    chmod +x "$DESTDIR/etc/sv/NetworkManager/run"
+}

@@ -1,0 +1,22 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack wayland-protocols-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release
+
+    ninja
+}
+
+pkg_install() {
+    cd build
+    DESTDIR="$DESTDIR" ninja install
+}

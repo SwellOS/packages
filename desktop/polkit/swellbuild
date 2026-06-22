@@ -1,0 +1,35 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack 125.tar.gz
+    mv polkit-* polkit
+}
+
+pkg_build() {
+    cd polkit
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        -Dman=disabled \
+        -Dsession_tracking=elogind \
+        -Dsystemdsystemunitdir= \
+        -Djs_engine=none \
+        -Dtests=false
+
+    ninja
+}
+
+pkg_install() {
+    cd polkit/build
+    DESTDIR="$DESTDIR" ninja install
+
+    # polkitd user
+    grep -q '^polkitd:' "$DESTDIR/etc/passwd" 2>/dev/null || \
+        echo "polkitd:x:82:82:PolicyKit Daemon:/:/sbin/nologin" >> "$DESTDIR/etc/passwd"
+    grep -q '^polkitd:' "$DESTDIR/etc/group" 2>/dev/null || \
+        echo "polkitd:x:82:" >> "$DESTDIR/etc/group"
+}
