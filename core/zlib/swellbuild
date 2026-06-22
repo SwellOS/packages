@@ -3,7 +3,7 @@ pkg_fetch() {
 }
 
 pkg_unpack() {
-    unpack zlib-*.tar.gz
+    unpack v1.3.1.tar.gz
 }
 
 pkg_build() {
