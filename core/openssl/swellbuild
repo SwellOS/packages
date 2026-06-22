@@ -1,0 +1,23 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack openssl-*.tar.gz
+}
+
+pkg_build() {
+    ./Configure --prefix=/usr \
+        --openssldir=/etc/ssl \
+        shared \
+        zlib \
+        enable-ec_nistp_64_gcc_128 \
+        linux-x86_64
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+    rm -f "$DESTDIR/usr/lib/libssl.a" "$DESTDIR/usr/lib/libcrypto.a"
+}

@@ -48,6 +48,10 @@ jobs:
           - core/diffutils
           - core/findutils
           - core/patch
+          - core/zlib
+          - core/openssl
+          - network/curl
+          - dev/git
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -63,7 +67,9 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq build-essential autoconf automake libtool pkg-config
+          sudo apt-get install -y -qq \
+            build-essential autoconf automake libtool pkg-config \
+            libssl-dev zlib1g-dev libcurl4-openssl-dev libexpat1-dev
       - name: Build package ${{ matrix.package }}
         run: |
           cd /tmp/swell-build

@@ -1,0 +1,18 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack zlib-*.tar.gz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+    rm -f "$DESTDIR/usr/lib/libz.a"
+}

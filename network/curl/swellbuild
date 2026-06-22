@@ -1,0 +1,26 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack curl-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --disable-static \
+        --with-openssl \
+        --with-ca-bundle=/etc/ssl/cert.pem \
+        --without-libpsl \
+        --without-libidn2 \
+        --without-brotli \
+        --without-zstd \
+        --without-nghttp2
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+    rm -f "$DESTDIR/usr/lib/libcurl.la"
+}

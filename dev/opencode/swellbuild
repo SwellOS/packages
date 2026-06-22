@@ -1,0 +1,16 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack opencode-*.tar.gz
+}
+
+pkg_build() {
+    go build -o opencode -ldflags="-s -w -X github.com/anomalyco/opencode/internal/version.Version=$(cat ../version)" .
+}
+
+pkg_install() {
+    install -d -m755 "$DESTDIR/usr/bin"
+    install -m755 opencode "$DESTDIR/usr/bin/opencode"
+}

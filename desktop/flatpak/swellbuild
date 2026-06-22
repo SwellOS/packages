@@ -1,0 +1,28 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack flatpak-*.tar.xz
+}
+
+pkg_build() {
+    mkdir -p build && cd build
+
+    meson setup .. \
+        --prefix=/usr \
+        --buildtype=release \
+        -Dsystem_bubblewrap=bwrap \
+        -Dsystem_fsverity=disabled \
+        -Dsystemd=disabled \
+        -Dselinux=disabled \
+        -Dtests=false \
+        -Ddoc=false
+
+    ninja
+}
+
+pkg_install() {
+    cd build
+    DESTDIR="$DESTDIR" ninja install
+}
