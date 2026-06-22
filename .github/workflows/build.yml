@@ -130,7 +130,7 @@ for root, dirs, files in os.walk(artifacts_dir):
         depends = json.loads(depends_str) if depends_str else []
         size = os.path.getsize(path)
         sha256 = hashlib.sha256(open(path, 'rb').read()).hexdigest()
-        url = 'https://packages.swellos.org/' + fname
+        url = 'https://raw.githubusercontent.com/SwellOS/packages/gh-pages/' + fname
 
         packages[name] = {
             'version': version,
