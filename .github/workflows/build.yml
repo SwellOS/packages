@@ -1,0 +1,107 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package name to build (empty = all buildable)'
+        required: false
+        type: string
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate package structure
+        run: |
+          errors=0
+          for dir in */; do
+            for pkg in "$dir"*/; do
+              if [ -d "$pkg" ]; then
+                name=$(basename "$pkg")
+                if [ ! -f "$pkg/version" ]; then
+                  echo "ERROR: $name missing version file"
+                  errors=$((errors+1))
+                fi
+              fi
+            done
+          done
+          echo "Errors: $errors"
+          exit $errors
+
+  build:
+    needs: validate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - core/sed
+          - core/grep
+          - core/gawk
+          - core/file
+          - core/diffutils
+          - core/findutils
+          - core/patch
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build swell-build
+        run: |
+          git clone --depth 1 https://github.com/SwellOS/swell-build.git /tmp/swell-build
+          cd /tmp/swell-build
+          cargo build --release
+      - name: Set up workspace
+        run: |
+          sudo mkdir -p /usr/src/swell/packages /usr/src/swell/repo /usr/src/swell/build /usr/src/swell/sources /usr/src/swell/dest
+          sudo cp -r ${{ github.workspace }}/* /usr/src/swell/packages/
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential autoconf automake libtool pkg-config
+      - name: Build package ${{ matrix.package }}
+        run: |
+          cd /tmp/swell-build
+          ./target/release/swell-build pkg ${{ matrix.package }}
+        env:
+          SWELL_PACKAGES: /usr/src/swell/packages
+          SWELL_REPO: /usr/src/swell/repo
+          SWELL_BUILD: /usr/src/swell/build
+          SWELL_SOURCES: /usr/src/swell/sources
+          SWELL_DEST: /usr/src/swell/dest
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package }}
+          path: /usr/src/swell/repo/
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+      - name: Assemble repo
+        run: |
+          mkdir -p /tmp/repo
+          find /tmp/artifacts -name '*.swell' -exec cp {} /tmp/repo/ \;
+          if [ -f /tmp/artifacts/repo.db ]; then
+            cp /tmp/artifacts/repo.db /tmp/repo/
+          fi
+          echo '{ "version": 1, "packages": [] }' > /tmp/repo/repo.db
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: /tmp/repo
+          destination_dir: .
+          keep_files: false
