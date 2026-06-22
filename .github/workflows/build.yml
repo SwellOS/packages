@@ -35,19 +35,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package:
-          - core/sed
-          - core/grep
-          - core/gawk
-          - core/file
-          - core/diffutils
-          - core/findutils
-          - core/patch
-          - core/zlib
-          - core/openssl
-          - network/curl
-          - dev/git
-          - dev/supm
+        include:
+          - cat: core
+            pkg: sed
+          - cat: core
+            pkg: grep
+          - cat: core
+            pkg: gawk
+          - cat: core
+            pkg: file
+          - cat: core
+            pkg: diffutils
+          - cat: core
+            pkg: findutils
+          - cat: core
+            pkg: patch
+          - cat: core
+            pkg: zlib
+          - cat: core
+            pkg: openssl
+          - cat: network
+            pkg: curl
+          - cat: dev
+            pkg: git
+          - cat: dev
+            pkg: supm
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -67,23 +79,20 @@ jobs:
           sudo apt-get install -y -qq \
             build-essential autoconf automake libtool pkg-config \
             libssl-dev zlib1g-dev libcurl4-openssl-dev libexpat1-dev
-      - name: Build ${{ matrix.package }}
+      - name: Build ${{ matrix.cat }}/${{ matrix.pkg }}
         run: |
           cd /tmp/swell-build
-          ./target/release/swell-build pkg ${{ matrix.package }}
+          ./target/release/swell-build pkg ${{ matrix.cat }}/${{ matrix.pkg }}
         env:
           SWELL_PACKAGES: /usr/src/swell/packages
           SWELL_REPO: /usr/src/swell/repo
           SWELL_BUILD: /usr/src/swell/build
           SWELL_SOURCES: /usr/src/swell/sources
           SWELL_DEST: /usr/src/swell/dest
-      - name: List output files
-        run: |
-          find /usr/src/swell/repo -type f -ls 2>/dev/null || echo "No files found"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.package }}
+          name: ${{ matrix.cat }}-${{ matrix.pkg }}
           path: /usr/src/swell/repo/packages/
 
   deploy:
