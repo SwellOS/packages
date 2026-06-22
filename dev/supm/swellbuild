@@ -3,7 +3,7 @@ pkg_fetch() {
 }
 
 pkg_unpack() {
-    unpack main.tar.gz
+    unpack master.tar.gz
 }
 
 pkg_build() {
