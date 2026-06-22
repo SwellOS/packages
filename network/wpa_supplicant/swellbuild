@@ -1,0 +1,51 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack wpa_supplicant-*.tar.gz
+}
+
+pkg_build() {
+    cd wpa_supplicant-*/wpa_supplicant
+
+    cat > .config << 'WPA'
+CONFIG_BACKEND=file
+CONFIG_CTRL_IFACE=y
+CONFIG_DRIVER_NL80211=y
+CONFIG_DRIVER_WEXT=y
+CONFIG_IEEE8021X_EAPOL=y
+CONFIG_EAP_MD5=y
+CONFIG_EAP_MSCHAPV2=y
+CONFIG_EAP_TLS=y
+CONFIG_EAP_PEAP=y
+CONFIG_EAP_TTLS=y
+CONFIG_WPS=y
+CONFIG_P2P=y
+CONFIG_HS20=y
+CONFIG_DEBUG_SYSLOG=y
+WPA
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    cd wpa_supplicant-*/wpa_supplicant
+    install -Dm755 wpa_supplicant "$DESTDIR/usr/sbin/wpa_supplicant"
+    install -Dm755 wpa_cli "$DESTDIR/usr/sbin/wpa_cli"
+    install -Dm755 wpa_passphrase "$DESTDIR/usr/sbin/wpa_passphrase"
+
+    mkdir -p "$DESTDIR/etc"
+    cat > "$DESTDIR/etc/wpa_supplicant.conf" << 'WPA_CONF'
+ctrl_interface=/run/wpa_supplicant
+update_config=1
+WPA_CONF
+
+    # runit service
+    mkdir -p "$DESTDIR/etc/sv/wpa_supplicant"
+    cat > "$DESTDIR/etc/sv/wpa_supplicant/run" << 'RUN'
+#!/bin/sh
+exec /usr/sbin/wpa_supplicant -u -s -O /run/wpa_supplicant
+RUN
+    chmod +x "$DESTDIR/etc/sv/wpa_supplicant/run"
+}

@@ -1,0 +1,35 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack rustc-*-src.tar.xz
+    mv rustc-*-src rust
+}
+
+pkg_build() {
+    cd rust
+
+    cat > config.toml << 'RUSTCFG'
+[llvm]
+link-shared = true
+
+[build]
+target = ["x86_64-unknown-linux-gnu"]
+
+[install]
+prefix = "/usr"
+
+[rust]
+default-linker = "clang"
+channel = "stable"
+rpath = false
+RUSTCFG
+
+    ./x.py build -j$(nproc)
+}
+
+pkg_install() {
+    cd rust
+    DESTDIR="$DESTDIR" ./x.py install
+}

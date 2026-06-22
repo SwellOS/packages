@@ -1,0 +1,24 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack Audacity-*.tar.gz
+    mv audacity-* audacity
+}
+
+pkg_build() {
+    cd audacity
+    mkdir -p build && cd build
+
+    cmake .. \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=Release
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    cd audacity/build
+    make DESTDIR="$DESTDIR" install
+}

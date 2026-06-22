@@ -1,0 +1,45 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack chromium-*.tar.xz
+    mv chromium-* chromium
+}
+
+pkg_build() {
+    cd chromium
+
+    mkdir -p out/Release
+    cat > out/Release/args.gn << 'GN'
+is_debug=false
+is_component_build=false
+symbol_level=0
+blink_symbol_level=0
+optimize_for_size=true
+use_sysroot=false
+enable_nacl=false
+use_udev=true
+use_dbus=true
+use_pulseaudio=true
+enable_widevine=false
+fieldtrial_testing_like_official_build=true
+GN
+
+    gn gen out/Release
+    ninja -C out/Release -j$(nproc) chrome
+}
+
+pkg_install() {
+    cd chromium
+    install -Dm755 out/Release/chrome "$DESTDIR/usr/bin/chromium"
+
+    mkdir -p "$DESTDIR/usr/share/applications"
+    cat > "$DESTDIR/usr/share/applications/chromium.desktop" << 'DESK'
+[Desktop Entry]
+Name=Chromium
+Exec=/usr/bin/chromium
+Type=Application
+Categories=Network;WebBrowser;
+DESK
+}

@@ -1,0 +1,34 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack llvm-project-*.src.tar.xz
+    mv llvm-project-* llvm-project
+}
+
+pkg_build() {
+    mkdir -p build && cd build
+
+    cmake -G "Unix Makefiles" \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DLLVM_ENABLE_PROJECTS="clang;lld;compiler-rt" \
+        -DLLVM_ENABLE_FFI=OFF \
+        -DLLVM_ENABLE_LIBCXX=OFF \
+        -DLLVM_TARGETS_TO_BUILD="X86" \
+        -DLLVM_INCLUDE_BENCHMARKS=OFF \
+        -DLLVM_INCLUDE_TESTS=OFF \
+        -DLLVM_INCLUDE_EXAMPLES=OFF \
+        -DLLVM_INCLUDE_DOCS=OFF \
+        -DCLANG_DEFAULT_CXX_STDLIB=libstdc++ \
+        -DCLANG_DEFAULT_LINKER=lld \
+        ../llvm-project/llvm
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    cd build
+    make DESTDIR="$DESTDIR" install
+}

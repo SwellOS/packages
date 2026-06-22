@@ -1,0 +1,20 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack git-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --with-gitconfig=/etc/gitconfig \
+        --without-tcltk \
+        --without-python
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+}

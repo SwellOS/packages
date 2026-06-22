@@ -1,0 +1,29 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack iwd-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --disable-systemd \
+        --enable-external-ell \
+        --enable-client
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+
+    # runit service
+    mkdir -p "$DESTDIR/etc/sv/iwd"
+    cat > "$DESTDIR/etc/sv/iwd/run" << 'RUN'
+#!/bin/sh
+exec /usr/libexec/iwd
+RUN
+    chmod +x "$DESTDIR/etc/sv/iwd/run"
+}

@@ -1,0 +1,27 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack ffmpeg-*.tar.xz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --enable-gpl \
+        --enable-version3 \
+        --enable-nonfree \
+        --disable-static \
+        --enable-shared \
+        --disable-debug \
+        --enable-libmp3lame \
+        --enable-libx264 \
+        --enable-libx265 \
+        --enable-libvpx
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+}

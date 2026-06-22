@@ -1,0 +1,29 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack 31.0.1.tar.gz
+    mv obs-studio-* obs
+}
+
+pkg_build() {
+    cd obs
+    mkdir -p build && cd build
+
+    cmake -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DDISABLE_LIBFDK=ON \
+        -DENABLE_AJA=OFF \
+        -DENABLE_VLC=OFF \
+        -DENABLE_PULSEAUDIO=OFF \
+        -DENABLE_PIPEWIRE=ON \
+        ..
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    cd obs/build
+    make DESTDIR="$DESTDIR" install
+}

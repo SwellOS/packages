@@ -1,0 +1,18 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack MangoHud-*.tar.gz
+}
+
+pkg_build() {
+    cd MangoHud
+    meson build --prefix=/usr -Dwith_xnvctrl=disabled
+    ninja -C build
+}
+
+pkg_install() {
+    cd MangoHud
+    DESTDIR="$DESTDIR" ninja -C build install
+}

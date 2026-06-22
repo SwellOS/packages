@@ -1,0 +1,27 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack thunderbird-*.source.tar.xz
+    mv thunderbird-* thunderbird
+}
+
+pkg_build() {
+    cd thunderbird
+
+    cat > mozconfig << 'MOZ'
+ac_add_options --prefix=/usr
+ac_add_options --enable-application=mail
+ac_add_options --enable-optimize
+ac_add_options --disable-debug
+ac_add_options --disable-tests
+MOZ
+
+    ./mach build -j$(nproc)
+}
+
+pkg_install() {
+    cd thunderbird
+    ./mach install
+}

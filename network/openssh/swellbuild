@@ -1,0 +1,39 @@
+pkg_fetch() {
+    fetch_url "$(cat sources)"
+}
+
+pkg_unpack() {
+    unpack openssh-*.tar.gz
+}
+
+pkg_build() {
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc/ssh \
+        --with-md5-passwords \
+        --with-privsep-path=/var/lib/sshd
+
+    make -j$(nproc)
+}
+
+pkg_install() {
+    make DESTDIR="$DESTDIR" install
+
+    # Create sshd user
+    grep -q '^sshd:' "$DESTDIR/etc/passwd" 2>/dev/null || \
+        echo "sshd:x:74:74:Privilege-separated SSH:/var/empty/sshd:/sbin/nologin" >> "$DESTDIR/etc/passwd"
+    grep -q '^sshd:' "$DESTDIR/etc/group" 2>/dev/null || \
+        echo "sshd:x:74:" >> "$DESTDIR/etc/group"
+
+    mkdir -p "$DESTDIR/var/lib/sshd"
+
+    # runit service
+    mkdir -p "$DESTDIR/etc/sv/sshd"
+    cat > "$DESTDIR/etc/sv/sshd/run" << 'RUN'
+#!/bin/sh
+exec /usr/sbin/sshd -D
+RUN
+    chmod +x "$DESTDIR/etc/sv/sshd/run"
+
+    # Generate host keys on install
+    ssh-keygen -A -f "$DESTDIR" 2>/dev/null || true
+}
