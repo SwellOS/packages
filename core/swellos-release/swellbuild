@@ -1,0 +1,26 @@
+pkg_install() {
+    install -d -m755 "$DESTDIR/etc"
+
+    cat > "$DESTDIR/etc/os-release" << 'EOF'
+NAME="SwellOS"
+ID=swellos
+PRETTY_NAME="SwellOS 0.1"
+VERSION_ID="0.1"
+VERSION_CODENAME=""
+ID_LIKE=""
+HOME_URL="https://swellos.org"
+SUPPORT_URL="https://github.com/SwellOS/swellos"
+BUG_REPORT_URL="https://github.com/SwellOS/swellos/issues"
+BUILD_ID=rolling
+EOF
+
+    cat > "$DESTDIR/etc/swellos-release" << 'EOF'
+SwellOS release 0.1
+EOF
+
+    cat > "$DESTDIR/etc/lsb-release" << 'EOF'
+DISTRIB_ID=SwellOS
+DISTRIB_RELEASE=0.1
+DISTRIB_DESCRIPTION="SwellOS 0.1"
+EOF
+}
