@@ -60,6 +60,10 @@ jobs:
             pkg: git
           - cat: dev
             pkg: supm
+          - cat: core
+            pkg: swellos-release
+          - cat: core
+            pkg: swellos-base
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
