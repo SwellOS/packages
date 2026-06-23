@@ -5,8 +5,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 101410,
-    "sha256": "94a2d02a553e8093f4deb45ee0f375a7a382939e82cf7760fd5d2caaa1275f36",
+    "size": 101400,
+    "sha256": "99df90ede3c1c63d9a41432116c5cddb8f2be9d745ec1cab91f341db2a3965b6",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/zlib-1.3.1-1-x86_64.swell"
   },
   "openssl": {
@@ -15,9 +15,17 @@
     "depends": [
       "glibc zlib"
     ],
-    "size": 11127381,
-    "sha256": "03a649c8efbf5b5ceadc0e7007e954ee71d40a3d0597dbe7fb45d10cdef35ce0",
+    "size": 11126935,
+    "sha256": "7973adff8c8060cd1d1b7268fe5dc55612d217a5745ad1e7e489f1fd674b689a",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/openssl-3.6.3-1-x86_64.swell"
+  },
+  "swellos-release": {
+    "version": "0.1.0",
+    "release": 1,
+    "depends": [],
+    "size": 577,
+    "sha256": "fb27817d35279dd2eddc05ec31b9ef7deeef11287b697ccecd8d26c87a8bdfd6",
+    "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/swellos-release-0.1.0-1-x86_64.swell"
   },
   "diffutils": {
     "version": "3.10",
@@ -25,8 +33,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 768725,
-    "sha256": "17e7a3d37073c6fe9c1478a438028a17b92d5e38700381341b54940ce11c5956",
+    "size": 768733,
+    "sha256": "e7d1f148ac7580a1a10912afb7ff51a7d4115e205ee98e73e8a1dc14055ca6db",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/diffutils-3.10-1-x86_64.swell"
   },
   "grep": {
@@ -35,8 +43,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 543464,
-    "sha256": "15c97d22b8b3c579ba53b3a945d704f3d477142db5594bda25d897b294cb21be",
+    "size": 543474,
+    "sha256": "0a8f2a13e42a962c5c1a6390006864c32f0c5044fe0251e739e9222ac0ec6730",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/grep-3.11-1-x86_64.swell"
   },
   "curl": {
@@ -45,9 +53,19 @@
     "depends": [
       "glibc openssl zlib"
     ],
-    "size": 962642,
-    "sha256": "079e635786e02f091c425978959884e3dbf6c2a6f02d03deb3e1fc7f5012a0f8",
+    "size": 962727,
+    "sha256": "4af556d52764007575fe0bdfedc44e748eaeca66a850ec4c8daaac6e41ce7930",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/curl-8.11.0-1-x86_64.swell"
+  },
+  "swellos-base": {
+    "version": "0.1.0",
+    "release": 1,
+    "depends": [
+      "swellos-release"
+    ],
+    "size": 1217,
+    "sha256": "04a3c9a41ccc00ce05b955f7f914e68d9172e9296d75a9c40b898f24268204f4",
+    "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/swellos-base-0.1.0-1-x86_64.swell"
   },
   "file": {
     "version": "5.45",
@@ -55,8 +73,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 733188,
-    "sha256": "4c7d83e0549135942171d11203d2e1f9cfddbc4f77190e25804a64acc1a2e718",
+    "size": 733187,
+    "sha256": "0f11c5bdac0dcc43de5286b6437e4948ddadec33615b93778f94aedcf9f642e6",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/file-5.45-1-x86_64.swell"
   },
   "supm": {
@@ -66,8 +84,8 @@
       "glibc",
       "curl"
     ],
-    "size": 554076,
-    "sha256": "875c07e3d7fa69ace58ccaa5a9376755710cc282e72c7d55e262d7ae8126c28c",
+    "size": 554077,
+    "sha256": "1d03cab401fead603a0714748e1e8b8ed923cb0fa7f7105764e70fc087d3d034",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/supm-0.1.0-1-x86_64.swell"
   },
   "gawk": {
@@ -76,8 +94,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 2478656,
-    "sha256": "116a24805787b2c4da64f00ef489b54dec3d12417cee1ba213868712d2d25c44",
+    "size": 2478665,
+    "sha256": "fe6669551901b53a9c21336893928aa7f4780f60f04b33a9c00fb4b57aa9825e",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/gawk-5.3.0-1-x86_64.swell"
   },
   "patch": {
@@ -87,7 +105,7 @@
       "glibc"
     ],
     "size": 376983,
-    "sha256": "2f35866e3ce4718e73ec74b81839e94642a59f407e81721be6e5b6ae4f05c361",
+    "sha256": "7fa388a9eb40c1562a9a7143358c32d9406805619e576275fb4e9f4d08c815c7",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/patch-2.7.6-1-x86_64.swell"
   },
   "git": {
@@ -97,8 +115,8 @@
       "glibc",
       "gettext"
     ],
-    "size": 60684701,
-    "sha256": "054b27fe15b20e3fb7c53628a04d9f9e0bf6a5e393b4516818cfacf84f9204e4",
+    "size": 60684638,
+    "sha256": "789253a46b05c9e5cc766b25e5410442ff200b327970282fae13eb73791123d2",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/git-2.47.1-1-x86_64.swell"
   },
   "sed": {
@@ -107,8 +125,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 474155,
-    "sha256": "633d6e12b5e7a22326b33d05a584baf6f4483b883c68c0ecf6ceaea72ae9d1a7",
+    "size": 474100,
+    "sha256": "ab88b4361d3c0efc8a42901ca9493f991cc1c93be6871a0a9a408c15193577c0",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/sed-4.9-1-x86_64.swell"
   },
   "findutils": {
@@ -117,8 +135,8 @@
     "depends": [
       "glibc"
     ],
-    "size": 1073789,
-    "sha256": "53a5575e266fe72fa042bb747f5e2535c17985f75dd0634ea271ec0f21faffac",
+    "size": 1073945,
+    "sha256": "e9f87dfd78e89bb43de277393265af9ba6698663ef640fae242ec3a76628fe96",
     "url": "https://raw.githubusercontent.com/SwellOS/packages/gh-pages/findutils-4.10.0-1-x86_64.swell"
   }
 }
